@@ -1,6 +1,7 @@
-package ru.sbt.edu.concurrency.counter;
+package ru.sbt.edu.concurrency.counter.impl;
 
 
+import ru.sbt.edu.concurrency.counter.Counter;
 import ru.sbt.edu.concurrency.locks.ILock;
 
 public class ILockCounter implements Counter {
@@ -14,8 +15,12 @@ public class ILockCounter implements Counter {
 
     @Override
     public void increment() {
-        //todo : implement this!
-        count++;
+        lock.lock();
+        try {
+            count++;
+        } finally {
+            lock.unlock();
+        }
     }
 
     @Override
