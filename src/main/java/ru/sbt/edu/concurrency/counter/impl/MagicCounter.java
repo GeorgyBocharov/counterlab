@@ -8,8 +8,11 @@ public class MagicCounter implements Counter {
 
     private int counter = 0;
 
-    private final ImprovedBakeryLock improvedBakeryLock = new ImprovedBakeryLock();
+    private final ImprovedBakeryLock improvedBakeryLock ;
 
+    public MagicCounter(int n) {
+        this.improvedBakeryLock = new ImprovedBakeryLock(n);
+    }
 
     @Override
     public void increment() {
@@ -24,6 +27,7 @@ public class MagicCounter implements Counter {
 
     @Override
     public long getValue() {
+        System.out.println(improvedBakeryLock.getContainer());
         return counter;
     }
 }

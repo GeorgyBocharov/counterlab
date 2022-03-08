@@ -28,7 +28,9 @@ public class ConcurrentCounter implements Counter {
         } catch (InterruptedException ex) {
             ex.printStackTrace();
         } finally {
-            semaphore.release();
+            if (semaphore.availablePermits() == 0) {
+                semaphore.release();
+            }
         }
     }
 

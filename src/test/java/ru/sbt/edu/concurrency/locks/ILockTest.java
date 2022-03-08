@@ -21,8 +21,6 @@ import ru.sbt.edu.concurrency.util.TwoThreadIds;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 
 public class ILockTest {
@@ -70,14 +68,14 @@ public class ILockTest {
 
     @ParameterizedTest
     @ValueSource(ints = {1, 2, 10, 100, 1000})
-    public void  testConcurrentLock(int iterations) {
+    public void testConcurrentLock(int iterations) {
         testCounter(new ConcurrentCounter(), iterations, 5);
     }
 
     @ParameterizedTest
-    @ValueSource(ints = {1, 2, 10, 100, 1000})
-    public void  testMagicLock(int iterations) {
-        testCounter(new MagicCounter(), iterations, 10);
+    @ValueSource(ints = {1, 2, 10, 100, 1000, 100000})
+    public void testMagicLock(int iterations) {
+        testCounter(new MagicCounter(10), iterations, 10);
     }
 
     @Test
@@ -85,7 +83,7 @@ public class ILockTest {
         Counter counter = new SeqCounter();
         testCounter(counter, 1000, 1);
     }
-    
+
     private void testLock(ILock lock, int iterations) {
         Counter counter = new ILockCounter(lock);
         testCounter(counter, iterations, 2);
@@ -103,11 +101,11 @@ public class ILockTest {
         for (int i = 0; i < threadNumber; i++) {
             Thread thread = new Thread(increment);
             threads.add(thread);
-            thread.start();;
+            thread.start();
         }
 
         try {
-            for (Thread thread: threads) {
+            for (Thread thread : threads) {
                 thread.join();
             }
         } catch (InterruptedException e) {

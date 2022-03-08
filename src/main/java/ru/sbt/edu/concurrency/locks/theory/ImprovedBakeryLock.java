@@ -3,47 +3,67 @@ package ru.sbt.edu.concurrency.locks.theory;
 import ru.sbt.edu.concurrency.locks.ILock;
 import ru.sbt.edu.concurrency.util.ThreadID;
 
-import static java.lang.Long.MIN_VALUE;
 
-/**
- * Простите, что отправляю это...
- * Не успел придумать ничего лучше
- */
 public class ImprovedBakeryLock implements ILock {
-    private volatile long[] label;
+    private volatile int[] label;
     private volatile boolean[] flag;
+    private volatile long status = 0;
+    private final int n;
+    private long container = 0;
 
-    public ImprovedBakeryLock() {
-        int n = 1000;
+    public ImprovedBakeryLock(int n) {
         flag = new boolean[n];
-        label = new long[n];
+        label = new int[n];
         for (int i = 0; i < n; i++) {
             flag[i] = false;
             label[i] = 0;
         }
+        this.n = n;
     }
 
     public void lock() {
         int i = ThreadID.get();
-        int currentLength = flag.length;
-        label[i] = getMaxPlusOne(currentLength);
-        for (int k = 0; k < currentLength; k++) {
-            while ((k != i) && flag[k] && ((label[k] < label[i]) || ((label[k] == label[i]) && k < i))) {
+        flag[i] = true;
+        status = System.currentTimeMillis();
+        int maxPlusOne = getMaxPlusOne();
+        label[i] = maxPlusOne;
+        status = System.currentTimeMillis();
+        long readableStatus = 0;
+        for (int k = 0; k < n; k++) {
+            boolean flagK;
+            int labelK;
+            do {
+                readableStatus = status;
+                flagK = flag[k];
+                long flagStatus = status;
+                labelK = label[k];
+                readableStatus += flagStatus;
             }
+            while ((k != i) && flagK && ((labelK < maxPlusOne) || ((labelK == maxPlusOne) && k < i)));
         }
+        container = readableStatus;
     }
 
     public void unlock() {
         flag[ThreadID.get()] = false;
+        status = System.currentTimeMillis();
     }
 
-    private long getMaxPlusOne(int currentLength) {
-        long max = MIN_VALUE;
-        for (int i = 0; i < currentLength; i++) {
-            if (label[i] > max) {
-                max = label[i];
+    public long getContainer() {
+        return container;
+    }
+
+    private int getMaxPlusOne() {
+        int max = Integer.MIN_VALUE;
+        long currentStatus = 0;
+        for (int i = 0; i < n; i++) {
+            currentStatus = status;
+            int nextLabel = label[i];
+            if (nextLabel > max) {
+                max = nextLabel;
             }
         }
+        container = currentStatus;
         return max + 1;
     }
 }
