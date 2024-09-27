@@ -9,4 +9,8 @@ public class ThreadID {
     public static int get() {
         return me.get();
     }
+
+    public static void reset() {
+        identifier.set(0);
+    }
 }

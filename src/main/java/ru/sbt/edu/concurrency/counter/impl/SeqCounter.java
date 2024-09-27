@@ -1,4 +1,6 @@
-package ru.sbt.edu.concurrency.counter;
+package ru.sbt.edu.concurrency.counter.impl;
+
+import ru.sbt.edu.concurrency.counter.Counter;
 
 public class SeqCounter implements Counter {
     private long value;
